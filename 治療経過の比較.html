@@ -1,0 +1,459 @@
+<!doctype html><html><head><meta charset=utf8><meta name=viewport content="width=device-width,initial-scale=1,viewport-fit=cover"><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<title>治療経過の比較</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+  /* Layout: one centered working column sized for a clinic tablet.
+     Setup (labels + photo pickers) on top, the large comparison stage below. */
+  :root {
+    --bg: #f2f5f4;
+    --surface: #ffffff;
+    --ink: #1d2b2f;
+    --ink-dim: #566a6f;
+    --primary: #2e6e76;
+    --on-primary: #ffffff;
+    --primary-hover: #1f4c52;
+    --line: #d3dddb;
+    --stage: #e4ebe9;
+    --focus: rgba(46, 110, 118, 0.38);
+    --chip-bg: rgba(255, 255, 255, 0.9);
+    --chip-ink: #1d2b2f;
+    --handle: #ffffff;
+    --font-body: 'Zen Kaku Gothic New', 'Hiragino Sans', 'Yu Gothic', 'Noto Sans JP', sans-serif;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #101719;
+      --surface: #182124;
+      --ink: #e4edec;
+      --ink-dim: #9db2b6;
+      --primary: #7cc0c7;
+      --on-primary: #0f2427;
+      --primary-hover: #a3d6db;
+      --line: #2b3b3f;
+      --stage: #0d1315;
+      --focus: rgba(124, 192, 199, 0.45);
+      color-scheme: dark;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #101719;
+    --surface: #182124;
+    --ink: #e4edec;
+    --ink-dim: #9db2b6;
+    --primary: #7cc0c7;
+    --on-primary: #0f2427;
+    --primary-hover: #a3d6db;
+    --line: #2b3b3f;
+    --stage: #0d1315;
+    --focus: rgba(124, 192, 199, 0.45);
+    color-scheme: dark;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: var(--font-body);
+    font-size: 16px;
+    line-height: 1.7;
+  }
+
+  .page {
+    padding-block: 24px 40px;
+    padding-left: max(16px, env(safe-area-inset-left, 0px));
+    padding-right: max(16px, env(safe-area-inset-right, 0px));
+  }
+
+  .card {
+    max-width: 760px;
+    margin-inline: auto;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-top: 3px solid var(--primary);
+    padding: 24px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    font-weight: 700;
+    line-height: 1.4;
+    text-wrap: balance;
+  }
+  .lead { margin: 4px 0 0; color: var(--ink-dim); font-size: 0.92rem; }
+
+  .setup {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 14px;
+  }
+
+  .slot {
+    min-width: 0;
+    border: 1px dashed var(--line);
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .slot-title { font-size: 0.8rem; color: var(--ink-dim); margin: 0; }
+
+  .slot input[type="text"] {
+    width: 100%;
+    font: inherit;
+    font-weight: 700;
+    color: var(--ink);
+    background: transparent;
+    border: none;
+    border-bottom: 1px solid var(--line);
+    padding: 2px 0 6px;
+    border-radius: 0;
+  }
+  .slot input[type="text"]:focus-visible {
+    outline: none;
+    border-bottom-color: var(--primary);
+    box-shadow: 0 2px 0 0 var(--primary);
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    align-self: flex-start;
+    min-height: 44px;
+    padding: 0 18px;
+    font: inherit;
+    font-size: 0.9rem;
+    font-weight: 700;
+    background: var(--primary);
+    color: var(--on-primary);
+    border: 1px solid var(--primary);
+    cursor: pointer;
+  }
+  .btn:hover { background: var(--primary-hover); border-color: var(--primary-hover); }
+  .btn:focus-within, .btn:focus-visible { outline: 3px solid var(--focus); outline-offset: 2px; }
+  .btn-quiet {
+    background: transparent;
+    color: var(--primary);
+  }
+  .btn-quiet:hover { background: transparent; color: var(--primary-hover); border-color: var(--primary-hover); }
+
+  .sr-only {
+    position: absolute;
+    width: 1px; height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .file-name {
+    min-height: 1.4em;
+    margin: 0;
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+    overflow-wrap: anywhere;
+  }
+
+  .actions { display: flex; flex-wrap: wrap; gap: 10px; }
+
+  .idle {
+    margin: 0;
+    padding: 28px 16px;
+    text-align: center;
+    background: var(--stage);
+    color: var(--ink-dim);
+    font-size: 0.92rem;
+  }
+
+  /* The stage takes the aspect ratio of the "before" photo so nothing is cropped. */
+  .compare {
+    --ratio: 1.3333;
+    position: relative;
+    width: min(100%, calc(72vh * var(--ratio)));
+    max-width: 100%;
+    aspect-ratio: var(--ratio);
+    margin-inline: auto;
+    overflow: hidden;
+    background: var(--stage);
+    cursor: ew-resize;
+    touch-action: pan-y;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .compare img {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    pointer-events: none;
+    -webkit-user-drag: none;
+  }
+  .layer-after { z-index: 1; }
+  .layer-before { z-index: 2; clip-path: inset(0 50% 0 0); }
+
+  .tag {
+    position: absolute;
+    top: 10px;
+    z-index: 3;
+    padding: 3px 12px;
+    font-size: 0.8rem;
+    font-weight: 700;
+    background: var(--chip-bg);
+    color: var(--chip-ink);
+    pointer-events: none;
+    max-width: 44%;
+    overflow-wrap: anywhere;
+  }
+  .tag-before { left: 10px; }
+  .tag-after { right: 10px; }
+
+  .handle {
+    position: absolute;
+    top: 0; bottom: 0;
+    left: 50%;
+    z-index: 4;
+    width: 44px;
+    transform: translateX(-50%);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    outline: none;
+    cursor: ew-resize;
+  }
+  .handle-line {
+    position: absolute;
+    top: 0; bottom: 0;
+    width: 2px;
+    background: var(--handle);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.25);
+  }
+  .handle-grip {
+    position: relative;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: var(--handle);
+    border: 2px solid var(--primary);
+    color: var(--primary);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 0.95rem;
+    font-weight: 700;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.3);
+  }
+  .handle:focus-visible .handle-grip { box-shadow: 0 0 0 4px var(--focus); }
+
+  .hint { margin: 10px 0 0; text-align: center; font-size: 0.78rem; color: var(--ink-dim); }
+
+  .privacy {
+    margin: 0;
+    padding-top: 16px;
+    border-top: 1px solid var(--line);
+    font-size: 0.78rem;
+    color: var(--ink-dim);
+  }
+
+  @media (max-width: 480px) {
+    .card { padding: 18px; }
+  }
+</style>
+
+<div class="page">
+  <main class="card">
+    <header>
+      <h1>治療経過の比較</h1>
+      <p class="lead">治療前と治療後の写真を選ぶと、境界線をドラッグして見比べられます。</p>
+    </header>
+
+    <section class="setup" aria-label="写真の選択">
+      <div class="slot">
+        <p class="slot-title">左側(境界線より左に表示)</p>
+        <input type="text" id="labelBefore" value="治療前" aria-label="左側のラベル" maxlength="20">
+        <label class="btn" id="btnBefore">写真を選ぶ
+          <input type="file" id="fileBefore" class="sr-only" accept="image/*">
+        </label>
+        <p class="file-name" id="nameBefore"></p>
+      </div>
+      <div class="slot">
+        <p class="slot-title">右側(境界線より右に表示)</p>
+        <input type="text" id="labelAfter" value="治療後" aria-label="右側のラベル" maxlength="20">
+        <label class="btn" id="btnAfter">写真を選ぶ
+          <input type="file" id="fileAfter" class="sr-only" accept="image/*">
+        </label>
+        <p class="file-name" id="nameAfter"></p>
+      </div>
+    </section>
+
+    <div class="actions">
+      <button type="button" class="btn btn-quiet" id="sampleBtn">サンプル画像で操作を試す</button>
+      <button type="button" class="btn btn-quiet" id="clearBtn" hidden>写真をクリア</button>
+    </div>
+
+    <p class="idle" id="idleHint">左右の写真を選ぶと、ここに比較画面が表示されます。</p>
+
+    <section id="compareWrap" hidden aria-label="比較画面">
+      <div class="compare" id="compare">
+        <img class="layer-after" id="imgAfter" alt="右側の写真">
+        <img class="layer-before" id="imgBefore" alt="左側の写真">
+        <div class="tag tag-before" id="tagBefore">治療前</div>
+        <div class="tag tag-after" id="tagAfter">治療後</div>
+        <div class="handle" id="handle" role="slider" tabindex="0"
+             aria-label="左右の写真の境界線" aria-valuemin="0" aria-valuemax="100" aria-valuenow="50">
+          <div class="handle-line"></div>
+          <div class="handle-grip" aria-hidden="true">⇔</div>
+        </div>
+      </div>
+      <p class="hint">指やマウスでドラッグ。境界線を選んで ← → キーでも動かせます。</p>
+    </section>
+
+    <p class="privacy">選んだ写真はこの端末のブラウザ内で表示するだけで、送信も保存もされません。使い終わったら「写真をクリア」を押すか、ページを閉じてください。</p>
+  </main>
+</div>
+
+<script>
+(function () {
+  var $ = function (id) { return document.getElementById(id); };
+  var el = {
+    compare: $('compare'), wrap: $('compareWrap'), idle: $('idleHint'),
+    imgBefore: $('imgBefore'), imgAfter: $('imgAfter'),
+    tagBefore: $('tagBefore'), tagAfter: $('tagAfter'), handle: $('handle'),
+    labelBefore: $('labelBefore'), labelAfter: $('labelAfter'),
+    fileBefore: $('fileBefore'), fileAfter: $('fileAfter'),
+    nameBefore: $('nameBefore'), nameAfter: $('nameAfter'),
+    clear: $('clearBtn'), sample: $('sampleBtn')
+  };
+  var urls = { before: null, after: null };
+  var dragging = false;
+
+  function setPosition(pct) {
+    pct = Math.max(0, Math.min(100, pct));
+    el.imgBefore.style.clipPath = 'inset(0 ' + (100 - pct) + '% 0 0)';
+    el.handle.style.left = pct + '%';
+    el.handle.setAttribute('aria-valuenow', String(Math.round(pct)));
+  }
+
+  function currentPosition() {
+    var v = parseFloat(el.handle.style.left);
+    return isNaN(v) ? 50 : v;
+  }
+
+  function refresh() {
+    var both = !!(urls.before && urls.after);
+    el.wrap.hidden = !both;
+    el.idle.hidden = both;
+    el.clear.hidden = !(urls.before || urls.after);
+    if (both) setPosition(50);
+  }
+
+  function releaseUrl(u) {
+    if (u && u.indexOf('blob:') === 0) {
+      try { URL.revokeObjectURL(u); } catch (e) {}
+    }
+  }
+
+  function setImage(side, url, name) {
+    var img = side === 'before' ? el.imgBefore : el.imgAfter;
+    var nameEl = side === 'before' ? el.nameBefore : el.nameAfter;
+    releaseUrl(urls[side]);
+    urls[side] = url;
+    if (side === 'before') {
+      img.onload = function () {
+        if (img.naturalWidth && img.naturalHeight) {
+          el.compare.style.setProperty('--ratio', String(img.naturalWidth / img.naturalHeight));
+        }
+      };
+    }
+    img.src = url;
+    nameEl.textContent = name;
+    refresh();
+  }
+
+  function pick(input, side) {
+    input.addEventListener('change', function () {
+      var f = input.files && input.files[0];
+      if (!f) return;
+      setImage(side, URL.createObjectURL(f), f.name);
+    });
+  }
+  pick(el.fileBefore, 'before');
+  pick(el.fileAfter, 'after');
+
+  el.labelBefore.addEventListener('input', function () {
+    el.tagBefore.textContent = el.labelBefore.value || '治療前';
+  });
+  el.labelAfter.addEventListener('input', function () {
+    el.tagAfter.textContent = el.labelAfter.value || '治療後';
+  });
+
+  el.clear.addEventListener('click', function () {
+    releaseUrl(urls.before); releaseUrl(urls.after);
+    urls.before = null; urls.after = null;
+    el.imgBefore.removeAttribute('src');
+    el.imgAfter.removeAttribute('src');
+    el.fileBefore.value = ''; el.fileAfter.value = '';
+    el.nameBefore.textContent = ''; el.nameAfter.textContent = '';
+    el.compare.style.removeProperty('--ratio');
+    refresh();
+  });
+
+  function makeSample(rx, ry, bg, fill, text, done) {
+    var c = document.createElement('canvas');
+    c.width = 800; c.height = 600;
+    var g = c.getContext('2d');
+    g.fillStyle = bg; g.fillRect(0, 0, 800, 600);
+    g.fillStyle = fill;
+    g.beginPath(); g.ellipse(400, 310, rx, ry, 0, 0, Math.PI * 2); g.fill();
+    g.fillStyle = 'rgba(0,0,0,0.55)';
+    g.font = '700 28px sans-serif';
+    g.textAlign = 'center';
+    g.fillText(text, 400, 70);
+    c.toBlob(function (b) { done(URL.createObjectURL(b)); }, 'image/png');
+  }
+
+  el.sample.addEventListener('click', function () {
+    makeSample(230, 160, '#d9d2c7', '#b99f88', 'サンプル画像(左)', function (u) {
+      setImage('before', u, 'サンプル画像');
+    });
+    makeSample(190, 185, '#c9d6d8', '#9fb7b2', 'サンプル画像(右)', function (u) {
+      setImage('after', u, 'サンプル画像');
+    });
+  });
+
+  function pctFromEvent(e) {
+    var r = el.compare.getBoundingClientRect();
+    return ((e.clientX - r.left) / r.width) * 100;
+  }
+  el.compare.addEventListener('pointerdown', function (e) {
+    dragging = true;
+    try { el.compare.setPointerCapture(e.pointerId); } catch (err) {}
+    setPosition(pctFromEvent(e));
+  });
+  el.compare.addEventListener('pointermove', function (e) {
+    if (dragging) setPosition(pctFromEvent(e));
+  });
+  function stop() { dragging = false; }
+  el.compare.addEventListener('pointerup', stop);
+  el.compare.addEventListener('pointercancel', stop);
+
+  el.handle.addEventListener('keydown', function (e) {
+    var p = currentPosition();
+    if (e.key === 'ArrowLeft') { setPosition(p - 4); e.preventDefault(); }
+    else if (e.key === 'ArrowRight') { setPosition(p + 4); e.preventDefault(); }
+    else if (e.key === 'Home') { setPosition(0); e.preventDefault(); }
+    else if (e.key === 'End') { setPosition(100); e.preventDefault(); }
+  });
+
+  refresh();
+})();
+</script>
+
+</body></html>
